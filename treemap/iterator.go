@@ -12,6 +12,7 @@ func (iter *EntryIterator) Next() *Entry {
 	return e
 }
 
+// HasNext returns true if has more entry.
 func (iter *EntryIterator) HasNext() bool {
 	return iter.next != nil
 }

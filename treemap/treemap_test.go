@@ -99,12 +99,22 @@ func getRandomStr(length uint) string {
 
 func TestIter(t *testing.T) {
 	tm := New()
-	tm.Put("Hello", "World")
-	t.Log(tm.Get("Hello"))
+	for i := 0; i < 20000; i++ {
+		tm.Put(i, i)
+	}
 
 	iter := tm.EntryIterator()
+	i := 0
 	for iter.HasNext() {
-		t.Log(iter.Next().GetKey(), iter.Next().GetValue())
+		e := iter.Next()
+		
+		if e.GetKey() != i || e.GetValue() != i {
+			t.Fatalf("key: %x, value: %s\n", e.GetKey(), e.GetValue())
+		}
+
+		i++
 	}
-	t.Error()
+	if i != 20000 {
+		t.Error()
+	}
 }
