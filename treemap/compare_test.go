@@ -36,17 +36,17 @@ func TestCompareStr(t *testing.T) {
 		t.Errorf("%s is as big as %s.", a, b)
 	}
 
-	ret, err = compare(10, a)
+	ret, err = compare(10.0, a)
 	if err == nil {
 		t.Error("10 is wrong type.")
 	}
 
-	ret, err = compare(a, 10)
+	ret, err = compare(a, 10.0)
 	if err == nil {
 		t.Error("10 is wrong type.")
 	}
 
-	ret, err = compare(20, 10)
+	ret, err = compare(20.0, 10.0)
 	if err == nil {
 		t.Error("10 and 20 are wrong type.")
 	}
