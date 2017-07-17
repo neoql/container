@@ -12,4 +12,4 @@
 
 ## License
 
-MIT, read more [here](https://github.com/neoql/container/blob/master/LICENSE)
+MIT, read more [here](https://github.com/neoql/container/blob/master/LICENCE)
