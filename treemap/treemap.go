@@ -135,18 +135,12 @@ func (tm *TreeMap) Put(key, value interface{}) (pre interface{}, err error) {
 }
 
 // Get returns the value of the value to which the specified key is mapped or nil.
-func (tm *TreeMap) Get(key interface{}) (value interface{}, err error) {
-	var p *Entry
-	p, err = tm.getEntry(key)
-	if err != nil {
-		return
+func (tm *TreeMap) Get(key interface{}) interface{} {
+	p, err := tm.getEntry(key)
+	if err != nil || p == nil{
+		return nil
 	}
-	if p == nil {
-		value = nil
-	}
-	value = p.GetValue()
-	err = nil
-	return
+	return p.GetValue()
 }
 
 func (tm *TreeMap) getEntry(key interface{}) (*Entry, error) {

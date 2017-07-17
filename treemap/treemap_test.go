@@ -6,25 +6,16 @@ import (
 
 func TestPutAndGet(t *testing.T) {
 	tm := New()
-	pre, err := tm.Put("Hello", "World")
+	
+	tm.Put("888", "Hello")
+	tm.Put("666", "Hi")
 
-	if pre != nil {
-		t.Error("pre shuould be nil.")
+	if tm.Get("888") != "Hello" || tm.Get("666") != "Hi" {
+		t.Error()
 	}
 
-	value, err := tm.Get("Hello")
-	if value != "World" || err != nil {
-		t.Error(value)
-	}
-
-	pre, err = tm.Put("Hello", "TreeMap")
-	if pre != "World" {
-		t.Error(pre)
-	}
-
-	tm.Put("Hi", "World")
-	value, err = tm.Get("Hi")
-	if value != "World" {
-		t.Error(value)
+	tm.Put("888", "World")
+	if tm.Get("888") != "World" {
+		t.Error()
 	}
 }
