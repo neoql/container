@@ -56,11 +56,32 @@ func rightOf(e *Entry) *Entry {
 	return e.right
 }
 
-func colorOf(e *Entry) bool{
+func colorOf(e *Entry) bool {
 	if e == nil {
 		return BLACK
 	}
 	return e.color
+}
+
+// successor returns the successor of the specified Entry, or null if no such.
+func successor(t *Entry) *Entry {
+	if t == nil {
+		return nil
+	} else if t.right != nil {
+		p := t.right
+		for p.left != nil {
+			p = p.left
+		}
+		return p
+	} else {
+		p := t.parent
+		ch := t
+		for p != nil && ch == p.right {
+			ch = p
+			p = p.parent
+		}
+		return p
+	}
 }
 
 // TreeMap represents a map that is implemented by a red and black tree.
@@ -164,6 +185,72 @@ func (tm *TreeMap) getEntry(key interface{}) (*Entry, error) {
 
 // Remove the mapping for this key from this TreeMap if present.
 func (tm *TreeMap) Remove(key interface{}) (value interface{}, err error) {
+	p, err := tm.getEntry(key)
+	if err != nil {
+		return
+	}
+
+	if p == nil {
+		value, err = nil, nil
+		return
+	}
+
+	value = p.value
+	err = tm.deleteEntry(p)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (tm *TreeMap) deleteEntry(p *Entry) (err error) {
+	tm.size--
+
+	if p.left != nil && p.right != nil {
+		s := successor(p)
+		p.key = s.key
+		p.value = s.value
+		p = s
+	}
+
+	var replacement *Entry
+	if p.left != nil {
+		replacement = p.left
+	} else {
+		replacement = p.right
+	}
+
+	if replacement != nil {
+		replacement.parent = p.parent
+		if p.parent == nil {
+			tm.root = replacement
+		} else if p == p.parent.left {
+			p.parent.left = replacement
+		} else {
+			p.parent.right = replacement
+		}
+
+		p.left, p.right, p.parent = nil, nil, nil
+
+		if p.color == BLACK {
+			tm.fixAfterDeletion(replacement)
+		}
+	} else if p.parent == nil {
+		tm.root = nil
+	} else {
+		if p.color == BLACK {
+			tm.fixAfterDeletion(p)
+		}
+		if p.parent != nil {
+			if p == p.parent.left {
+				p.parent.left = nil;
+			} else if p == p.parent.right {
+				p.parent.right = nil
+			}
+			p.parent = nil
+		}
+	}
+
 	return
 }
 
@@ -251,4 +338,61 @@ func (tm *TreeMap) fixAfterInsertion(x *Entry) {
 		}
 	}
 	tm.root.color = BLACK
+}
+
+func (tm *TreeMap) fixAfterDeletion(x *Entry) {
+	for x != tm.root && colorOf(x) == BLACK {
+		if x == leftOf(parentOf(x)) {
+			sib := rightOf(parentOf(x))
+
+			if colorOf(sib) == RED {
+				setColor(sib, BLACK)
+				setColor(parentOf(x), RED)
+				tm.rotateLeft(parentOf(x))
+			}
+
+			if colorOf(leftOf(sib)) == BLACK && colorOf(rightOf(sib)) == BLACK {
+					setColor(sib, RED)
+					x = parentOf(x)
+			} else {
+				if colorOf(rightOf(sib)) == BLACK {
+					setColor(leftOf(sib), BLACK)
+					setColor(sib, RED)
+					tm.rotateRight(sib)
+					sib = rightOf(parentOf(x))
+				}
+				setColor(sib, colorOf(parentOf(x)))
+				setColor(parentOf(x), BLACK)
+				setColor(rightOf(sib), BLACK)
+				tm.rotateLeft(parentOf(x))
+				x = tm.root
+			}
+		} else {
+			sib := leftOf(parentOf(x))
+			if colorOf(sib) == RED {
+				setColor(sib, BLACK)
+				setColor(parentOf(x), RED)
+				tm.rotateRight(parentOf(x))
+				sib = leftOf(parentOf(x))
+			}
+
+			if colorOf(rightOf(sib)) == BLACK && colorOf(leftOf(sib)) == BLACK {
+				setColor(sib, RED);
+                x = parentOf(x);
+			} else {
+				if colorOf(leftOf(sib)) == BLACK {
+                    setColor(rightOf(sib), BLACK);
+                    setColor(sib, RED);
+                    tm.rotateLeft(sib);
+                    sib = leftOf(parentOf(x));
+                }
+                setColor(sib, colorOf(parentOf(x)));
+                setColor(parentOf(x), BLACK);
+                setColor(leftOf(sib), BLACK);
+                tm.rotateRight(parentOf(x));
+                x = tm.root;
+			}
+		}
+	}
+	setColor(x, BLACK)
 }

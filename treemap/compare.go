@@ -21,6 +21,16 @@ func compare(a, b interface{}) (ret int, err error) {
 	case string:
 		ret = strings.Compare(a.(string), b.(string))
 		return
+	case int:
+		x, y := a.(int), b.(int)
+		if x < y {
+			ret = -1
+		} else if x > y {
+			ret = 1
+		} else {
+			ret = 0
+		}
+		return
 	default:
 		ret = a.(Comparator).CompareTo(b)
 		return
