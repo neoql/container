@@ -96,3 +96,15 @@ func getRandomStr(length uint) string {
 	}
 	return string(ret)
 }
+
+func TestIter(t *testing.T) {
+	tm := New()
+	tm.Put("Hello", "World")
+	t.Log(tm.Get("Hello"))
+
+	iter := tm.EntryIterator()
+	for iter.HasNext() {
+		t.Log(iter.Next().GetKey(), iter.Next().GetValue())
+	}
+	t.Error()
+}

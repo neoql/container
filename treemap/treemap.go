@@ -396,3 +396,20 @@ func (tm *TreeMap) fixAfterDeletion(x *Entry) {
 	}
 	setColor(x, BLACK)
 }
+
+func (tm *TreeMap) firstEntry() *Entry {
+	p := tm.root
+	if p != nil {
+		for p.left != nil {
+			p = p.left
+		}
+	}
+	return p
+}
+
+// EntryIterator returns a EntryIterator of the TreeMap.
+func (tm *TreeMap) EntryIterator() *EntryIterator {
+	return &EntryIterator {
+		next: tm.firstEntry(),
+	}
+}
