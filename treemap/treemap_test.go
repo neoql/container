@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+	"sort"
 )
 
 func TestPutAndGet(t *testing.T) {
@@ -116,5 +117,26 @@ func TestIter(t *testing.T) {
 	}
 	if i != 20000 {
 		t.Error()
+	}
+}
+
+func TestOrder(t *testing.T) {
+	tm := New()
+	nums := []int { 13, 8, 17, 1, 11 ,15, 25, 6, 22, 27 }
+
+	for _, num := range nums {
+		tm.Put(num, nil)
+	}
+	
+	iter := tm.EntryIterator()
+	i := 0
+	for iter.HasNext() {
+		e := iter.Next()
+		nums[i] = e.GetKey().(int)
+		t.Log(e.GetKey())
+		i++
+	}
+	if !sort.IntsAreSorted(nums) {
+		t.Error("Key should be sorted.")
 	}
 }
