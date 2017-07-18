@@ -349,6 +349,7 @@ func (tm *TreeMap) fixAfterDeletion(x *Entry) {
 				setColor(sib, BLACK)
 				setColor(parentOf(x), RED)
 				tm.rotateLeft(parentOf(x))
+				sib = rightOf(parentOf(x))
 			}
 
 			if colorOf(leftOf(sib)) == BLACK && colorOf(rightOf(sib)) == BLACK {
