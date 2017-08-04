@@ -379,19 +379,19 @@ func (tm *TreeMap) fixAfterDeletion(x *Entry) {
 
 			if colorOf(rightOf(sib)) == BLACK && colorOf(leftOf(sib)) == BLACK {
 				setColor(sib, RED);
-                x = parentOf(x);
+				x = parentOf(x);
 			} else {
 				if colorOf(leftOf(sib)) == BLACK {
-                    setColor(rightOf(sib), BLACK);
-                    setColor(sib, RED);
-                    tm.rotateLeft(sib);
-                    sib = leftOf(parentOf(x));
-                }
-                setColor(sib, colorOf(parentOf(x)));
-                setColor(parentOf(x), BLACK);
-                setColor(leftOf(sib), BLACK);
-                tm.rotateRight(parentOf(x));
-                x = tm.root;
+					setColor(rightOf(sib), BLACK);
+					setColor(sib, RED);
+					tm.rotateLeft(sib);
+					sib = leftOf(parentOf(x));
+				}
+				setColor(sib, colorOf(parentOf(x)));
+				setColor(parentOf(x), BLACK);
+				setColor(leftOf(sib), BLACK);
+				tm.rotateRight(parentOf(x));
+				x = tm.root;
 			}
 		}
 	}
