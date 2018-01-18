@@ -20,8 +20,8 @@ func main() {
     q.Close()
 
     for {
-        name, err := q.Pop()
-        if err != nil {
+        name, flag := q.Pop()
+        if !flag {
             break
         }
         fmt.Println(name)

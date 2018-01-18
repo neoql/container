@@ -2,23 +2,23 @@ package treemap
 
 import (
 	"math/rand"
+	"sort"
 	"testing"
 	"time"
-	"sort"
 )
 
 func TestPutAndGet(t *testing.T) {
 	tm := New()
 
-	tm.Put("888", "Hello")
-	tm.Put("666", "Hi")
+	tm.Put(CprString("888"), "Hello")
+	tm.Put(CprString("666"), "Hi")
 
-	if tm.Get("888") != "Hello" || tm.Get("666") != "Hi" {
+	if tm.Get(CprString("888")) != "Hello" || tm.Get(CprString("666")) != "Hi" {
 		t.Error()
 	}
 
-	tm.Put("888", "World")
-	if tm.Get("888") != "World" {
+	tm.Put(CprString("888"), "World")
+	if tm.Get(CprString("888")) != "World" {
 		t.Error()
 	}
 
@@ -26,7 +26,7 @@ func TestPutAndGet(t *testing.T) {
 		t.Error()
 	}
 
-	tm.Remove("666")
+	tm.Remove(CprString("666"))
 	if tm.Size() != 1 {
 		t.Error()
 	}
@@ -36,14 +36,14 @@ func TestBalance(t *testing.T) {
 	tm := New()
 	for i := 0; i < 20000; i++ {
 		k := getRandomStr(20)
-		tm.Put(k, i)
-		if i % 17 == 0 {
-			tm.Remove(k)
+		tm.Put(CprString(k), i)
+		if i%17 == 0 {
+			tm.Remove(CprString(k))
 		}
 	}
-	
+
 	// Test the root is black.
-	if tm.root.color != BLACK {
+	if tm.root.color != black {
 		t.Fatal("The root should be black")
 	}
 	// Test whether there is a continuous red nodes.
@@ -56,7 +56,7 @@ func checkRedNodes(x *Entry, num int, t *testing.T) {
 	if x == nil {
 		return
 	}
-	if x.color == RED {
+	if x.color == red {
 		num++
 	} else {
 		num = 0
@@ -79,7 +79,7 @@ func checkBlackNodes(x *Entry, t *testing.T) (sum int) {
 		t.Fatal("The number of black nodes per path is the same.")
 	}
 
-	if x.color == BLACK {
+	if x.color == black {
 		sum = leftSum + 1
 	} else {
 		sum = leftSum
@@ -101,15 +101,15 @@ func getRandomStr(length uint) string {
 func TestIter(t *testing.T) {
 	tm := New()
 	for i := 0; i < 20000; i++ {
-		tm.Put(i, i)
+		tm.Put(CprInt(i), i)
 	}
 
 	iter := tm.EntryIterator()
 	i := 0
 	for iter.HasNext() {
 		e := iter.Next()
-		
-		if e.GetKey() != i || e.GetValue() != i {
+
+		if int(e.GetKey().(CprInt)) != i || e.GetValue() != i {
 			t.Fatalf("key: %x, value: %s\n", e.GetKey(), e.GetValue())
 		}
 
@@ -122,18 +122,17 @@ func TestIter(t *testing.T) {
 
 func TestOrder(t *testing.T) {
 	tm := New()
-	nums := []int { 13, 8, 17, 1, 11 ,15, 25, 6, 22, 27 }
+	nums := []int{13, 8, 17, 1, 11, 15, 25, 6, 22, 27}
 
 	for _, num := range nums {
-		tm.Put(num, nil)
+		tm.Put(CprInt(num), nil)
 	}
-	
+
 	iter := tm.EntryIterator()
 	i := 0
 	for iter.HasNext() {
 		e := iter.Next()
-		nums[i] = e.GetKey().(int)
-		t.Log(e.GetKey())
+		nums[i] = int(e.GetKey().(CprInt))
 		i++
 	}
 	if !sort.IntsAreSorted(nums) {

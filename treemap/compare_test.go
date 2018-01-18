@@ -6,7 +6,7 @@ import (
 
 func TestCompareStr(t *testing.T) {
 	a, b := "Tom", "Jack"
-	ret, err := compare(a, b)
+	ret, err := compare(CprString(a), CprString(b))
 
 	if err != nil {
 		t.Error(err)
@@ -16,7 +16,7 @@ func TestCompareStr(t *testing.T) {
 		t.Errorf("%s is bigger than %s.", a, b)
 	}
 
-	ret, err = compare(b, a)
+	ret, err = compare(CprString(b), CprString(a))
 
 	if err != nil {
 		t.Error(err)
@@ -26,7 +26,7 @@ func TestCompareStr(t *testing.T) {
 		t.Errorf("%s is bigger than %s.", a, b)
 	}
 
-	ret, err = compare(a, a)
+	ret, err = compare(CprString(a), CprString(a))
 
 	if err != nil {
 		t.Error(err)
@@ -36,18 +36,13 @@ func TestCompareStr(t *testing.T) {
 		t.Errorf("%s is as big as %s.", a, b)
 	}
 
-	ret, err = compare(10.0, a)
+	ret, err = compare(CprFloat64(10.0), CprString(a))
 	if err == nil {
 		t.Error("10 is wrong type.")
 	}
 
-	ret, err = compare(a, 10.0)
+	ret, err = compare(CprString(a), CprFloat64(10.0))
 	if err == nil {
 		t.Error("10 is wrong type.")
-	}
-
-	ret, err = compare(20.0, 10.0)
-	if err == nil {
-		t.Error("10 and 20 are wrong type.")
 	}
 }

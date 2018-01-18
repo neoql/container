@@ -1,9 +1,10 @@
 package treemap
 
-// Red-black mechanics
+type color bool
+
 const (
-	RED 	= true
-	BLACK	= false
+	red 	color = true
+	black	color = false
 )
 
 // Entry is an entry of a TreeMap.
@@ -11,15 +12,15 @@ type Entry struct {
 	left	*Entry
 	right	*Entry
 	parent	*Entry
-	color 	bool
+	color 	color
 	// The key of the entry.
-	key 	interface{}
+	key 	Comparator
 	// The value of the entry.
 	value 	interface{}
 }
 
 // GetKey returns the key of the entry.
-func (entry *Entry) GetKey() interface{} {
+func (entry *Entry) GetKey() Comparator {
 	return entry.key
 }
 
@@ -36,9 +37,9 @@ func parentOf(e *Entry) *Entry {
 	return e.parent
 }
 
-func setColor(e *Entry, color bool) {
+func setColor(e *Entry, clr color) {
 	if e != nil {
-		e.color = color
+		e.color = clr
 	}
 }
 
@@ -56,9 +57,9 @@ func rightOf(e *Entry) *Entry {
 	return e.right
 }
 
-func colorOf(e *Entry) bool {
+func colorOf(e *Entry) color {
 	if e == nil {
-		return BLACK
+		return black
 	}
 	return e.color
 }
@@ -103,13 +104,13 @@ func (tm *TreeMap) Init() *TreeMap {
 }
 
 // Put insert a new entry with key and value in the TreeMap and returns previous value.
-func (tm *TreeMap) Put(key, value interface{}) (pre interface{}, err error) {
+func (tm *TreeMap) Put(key Comparator, value interface{}) (pre interface{}, err error) {
 	t := tm.root
 
 	// If TreeMap is empty
 	if t == nil {
 		tm.root = &Entry{
-			color: 	BLACK,
+			color: 	black,
 			key: 	key,
 			value: 	value,
 		}
@@ -156,7 +157,7 @@ func (tm *TreeMap) Put(key, value interface{}) (pre interface{}, err error) {
 }
 
 // Get returns the value of the value to which the specified key is mapped or nil.
-func (tm *TreeMap) Get(key interface{}) interface{} {
+func (tm *TreeMap) Get(key Comparator) interface{} {
 	p, err := tm.getEntry(key)
 	if err != nil || p == nil{
 		return nil
@@ -164,7 +165,7 @@ func (tm *TreeMap) Get(key interface{}) interface{} {
 	return p.GetValue()
 }
 
-func (tm *TreeMap) getEntry(key interface{}) (*Entry, error) {
+func (tm *TreeMap) getEntry(key Comparator) (*Entry, error) {
 	p := tm.root
 	for p != nil {
 		cmp, err := compare(key, p.GetKey())
@@ -184,7 +185,7 @@ func (tm *TreeMap) getEntry(key interface{}) (*Entry, error) {
 }
 
 // Remove the mapping for this key from this TreeMap if present.
-func (tm *TreeMap) Remove(key interface{}) (value interface{}, err error) {
+func (tm *TreeMap) Remove(key Comparator) (value interface{}, err error) {
 	p, err := tm.getEntry(key)
 	if err != nil {
 		return
@@ -232,13 +233,13 @@ func (tm *TreeMap) deleteEntry(p *Entry) (err error) {
 
 		p.left, p.right, p.parent = nil, nil, nil
 
-		if p.color == BLACK {
+		if p.color == black {
 			tm.fixAfterDeletion(replacement)
 		}
 	} else if p.parent == nil {
 		tm.root = nil
 	} else {
-		if p.color == BLACK {
+		if p.color == black {
 			tm.fixAfterDeletion(p)
 		}
 		if p.parent != nil {
@@ -301,101 +302,101 @@ func (tm *TreeMap) rotateRight(p *Entry) {
 }
 
 func (tm *TreeMap) fixAfterInsertion(x *Entry) {
-	x.color = RED
-	for x != nil && x != tm.root && x.parent.color == RED {
+	x.color = red
+	for x != nil && x != tm.root && x.parent.color == red {
 		if parentOf(x) == leftOf(parentOf(parentOf(x))) {
 			y := rightOf(parentOf(parentOf(x)))
-			if colorOf(y) == RED {
-				setColor(parentOf(x), BLACK)
-				setColor(y, BLACK)
-				setColor(parentOf(parentOf(x)), RED)
+			if colorOf(y) == red {
+				setColor(parentOf(x), black)
+				setColor(y, black)
+				setColor(parentOf(parentOf(x)), red)
 				x = parentOf(parentOf(x))
 			} else {
 				if x == rightOf(parentOf(x)) {
 					x = parentOf(x)
 					tm.rotateLeft(x)
 				}
-				setColor(parentOf(x), BLACK)
-				setColor(parentOf(parentOf(x)), RED)
+				setColor(parentOf(x), black)
+				setColor(parentOf(parentOf(x)), red)
 				tm.rotateRight(parentOf(parentOf(x)))
 			}
 		} else {
 			y := leftOf(parentOf(parentOf(x)))
-			if colorOf(y) == RED {
-				setColor(parentOf(x), BLACK)
-				setColor(y, BLACK)
-				setColor(parentOf(parentOf(x)), RED)
+			if colorOf(y) == red {
+				setColor(parentOf(x), black)
+				setColor(y, black)
+				setColor(parentOf(parentOf(x)), red)
 				x = parentOf(parentOf(x))
 			} else {
 				if x == leftOf(parentOf(x)) {
 					x = parentOf(x)
 					tm.rotateRight(x)
 				}
-				setColor(parentOf(x), BLACK)
-				setColor(parentOf(parentOf(x)), RED)
+				setColor(parentOf(x), black)
+				setColor(parentOf(parentOf(x)), red)
 				tm.rotateLeft(parentOf(parentOf(x)))
 			}
 		}
 	}
-	tm.root.color = BLACK
+	tm.root.color = black
 }
 
 func (tm *TreeMap) fixAfterDeletion(x *Entry) {
-	for x != tm.root && colorOf(x) == BLACK {
+	for x != tm.root && colorOf(x) == black {
 		if x == leftOf(parentOf(x)) {
 			sib := rightOf(parentOf(x))
 
-			if colorOf(sib) == RED {
-				setColor(sib, BLACK)
-				setColor(parentOf(x), RED)
+			if colorOf(sib) == red {
+				setColor(sib, black)
+				setColor(parentOf(x), red)
 				tm.rotateLeft(parentOf(x))
 				sib = rightOf(parentOf(x))
 			}
 
-			if colorOf(leftOf(sib)) == BLACK && colorOf(rightOf(sib)) == BLACK {
-					setColor(sib, RED)
+			if colorOf(leftOf(sib)) == black && colorOf(rightOf(sib)) == black {
+					setColor(sib, red)
 					x = parentOf(x)
 			} else {
-				if colorOf(rightOf(sib)) == BLACK {
-					setColor(leftOf(sib), BLACK)
-					setColor(sib, RED)
+				if colorOf(rightOf(sib)) == black {
+					setColor(leftOf(sib), black)
+					setColor(sib, red)
 					tm.rotateRight(sib)
 					sib = rightOf(parentOf(x))
 				}
 				setColor(sib, colorOf(parentOf(x)))
-				setColor(parentOf(x), BLACK)
-				setColor(rightOf(sib), BLACK)
+				setColor(parentOf(x), black)
+				setColor(rightOf(sib), black)
 				tm.rotateLeft(parentOf(x))
 				x = tm.root
 			}
 		} else {
 			sib := leftOf(parentOf(x))
-			if colorOf(sib) == RED {
-				setColor(sib, BLACK)
-				setColor(parentOf(x), RED)
+			if colorOf(sib) == red {
+				setColor(sib, black)
+				setColor(parentOf(x), red)
 				tm.rotateRight(parentOf(x))
 				sib = leftOf(parentOf(x))
 			}
 
-			if colorOf(rightOf(sib)) == BLACK && colorOf(leftOf(sib)) == BLACK {
-				setColor(sib, RED);
+			if colorOf(rightOf(sib)) == black && colorOf(leftOf(sib)) == black {
+				setColor(sib, red);
 				x = parentOf(x);
 			} else {
-				if colorOf(leftOf(sib)) == BLACK {
-					setColor(rightOf(sib), BLACK);
-					setColor(sib, RED);
+				if colorOf(leftOf(sib)) == black {
+					setColor(rightOf(sib), black);
+					setColor(sib, red);
 					tm.rotateLeft(sib);
 					sib = leftOf(parentOf(x));
 				}
 				setColor(sib, colorOf(parentOf(x)));
-				setColor(parentOf(x), BLACK);
-				setColor(leftOf(sib), BLACK);
+				setColor(parentOf(x), black);
+				setColor(leftOf(sib), black);
 				tm.rotateRight(parentOf(x));
 				x = tm.root;
 			}
 		}
 	}
-	setColor(x, BLACK)
+	setColor(x, black)
 }
 
 func (tm *TreeMap) firstEntry() *Entry {
